@@ -37,3 +37,10 @@ logger.log( // 12:34:56 Min length for `Description` is 10 chars.
     }
 );
 ```
+
+### Removing/changing colors
+
+If you want differents colors or not colors at all you can overwrite
+`addColorsToLogParams`.
+
+If you use an empty function you will remove all colors in parameters.

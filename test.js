@@ -1,6 +1,7 @@
-const assert   = require('assert');
-const jfLogger = require('./index');
-let assertions = 0;
+const assert        = require('assert');
+const formatDecimal = require('format-decimal');
+const jfLogger      = require('./index');
+let assertions      = 0;
 function assertEqual(actual, expected)
 {
     assert.strictEqual(actual, expected);
@@ -11,7 +12,7 @@ function assertEqual(actual, expected)
 function testLevel(msg)
 {
     // Eliminamos los colores.
-    msg = msg.replace(/\x1B\[\d{2}m/g, '');
+    msg          = msg.replace(/\x1B\[\d{2}m/g, '');
     const _parts = msg.match(/\[([^\]]+)\]\s(.+)/);
     if (_parts)
     {
@@ -43,7 +44,16 @@ const levels = {
     warn  : (msg) => testLevel(msg),
 };
 const logger = new jfLogger();
-logger.logger = levels;
+Object.assign(
+    logger,
+    {
+        // Realizamos las pruebas sin tomar en cuenta los colores.
+        addColorsToLogParams : () =>
+        {
+        },
+        logger               : levels
+    }
+);
 const names = Object.keys(levels);
 for (var length of [5, 10, 20])
 {
@@ -57,4 +67,4 @@ for (var length of [5, 10, 20])
 }
 // Verificamos el singleton
 assertEqual(jfLogger.i(), jfLogger.i());
-console.log('Total aserciones: %d', assertions);
+console.log('Total aserciones: %s', formatDecimal(assertions, { precision : 0 }));
