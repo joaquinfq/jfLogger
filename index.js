@@ -108,7 +108,14 @@ module.exports = class jfLogger extends jfObject {
                         break;
                     case 'number':
                         params[index] = chalk.red(
-                            formatDecimal(param)
+                            formatDecimal(
+                                param,
+                                {
+                                    precision : param === parseInt(param, 10)
+                                        ? 0
+                                        : 2
+                                }
+                            )
                         );
                         break;
                     case 'string':

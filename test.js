@@ -68,3 +68,5 @@ for (var length of [5, 10, 20])
 // Verificamos el singleton
 assertEqual(jfLogger.i(), jfLogger.i());
 console.log('Total aserciones: %s', formatDecimal(assertions, { precision : 0 }));
+
+jfLogger.i().log('info', '', 'Test %s number', 1.005);
