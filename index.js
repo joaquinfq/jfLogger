@@ -1,15 +1,15 @@
-const chalk         = require('chalk');
-const formatDecimal = require('format-decimal');
-const jfObject      = require('jf-object');
-const log4js        = require('log4js');
-const translations  = require('jf-translations').i();
+const chalk           = require('chalk');
+const formatDecimal   = require('format-decimal');
+const jfObject        = require('jf-object');
+const log4js          = require('log4js');
+const translations    = require('jf-translations').i();
 /**
  * Configuración por defecto a aplicar.
  * Se puede cambiar haciendo jfLogger.config = {...}
  *
  * @type {Object}
  */
-let colors          = {
+let colors            = {
     'debug' : 'cyan',
     'error' : 'red',
     'fatal' : 'magenta',
@@ -19,12 +19,18 @@ let colors          = {
     'warn'  : 'yellow'
 };
 /**
+ * Longitud por defecto del nombre a mostrar.
+ *
+ * @type {Number}
+ */
+let defaultNameLength = 15;
+/**
  * Configuración por defecto a aplicar.
  * Se puede cambiar haciendo jfLogger.config = {...}
  *
  * @type {Object}
  */
-let logConfig       = {
+let logConfig         = {
     appenders : [
         {
             type   : 'console',
@@ -73,7 +79,7 @@ module.exports = class jfLogger extends jfObject {
          * @property length
          * @type     {Number}
          */
-        this.length = config.length || 15;
+        this.length = config.length || defaultNameLength;
         /**
          * Referencia al módulo log4js.
          *
@@ -188,6 +194,16 @@ module.exports = class jfLogger extends jfObject {
     static set config(config)
     {
         Object.assign(logConfig, config);
+    }
+
+    /**
+     * Asigna la longitud por defecto del nombre a mostrar.
+     *
+     * @param length
+     */
+    static setDefaultNameLength(length)
+    {
+        defaultNameLength = length;
     }
 
     /**

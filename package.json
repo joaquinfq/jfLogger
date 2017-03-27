@@ -1,5 +1,5 @@
 {
-    "version": "0.1.2",
+    "version": "0.1.3",
     "name": "jf-logger",
     "author": "Joaquín Fernández",
     "description": "Class for manipulating logs and traces. Can be used as base class for reporting class or node scripts.",

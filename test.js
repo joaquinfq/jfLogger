@@ -65,8 +65,13 @@ for (var length of [5, 10, 20])
         );
     }
 }
+// Verificamos que al asignar la longitud por defecto, todas las
+// nuevas instancias usen ese valor.
+for (let length = 0; length < 50; ++length)
+{
+    jfLogger.setDefaultNameLength(length);
+    assertEqual(new jfLogger().length, length);
+}
 // Verificamos el singleton
 assertEqual(jfLogger.i(), jfLogger.i());
 console.log('Total aserciones: %s', formatDecimal(assertions, { precision : 0 }));
-
-jfLogger.i().log('info', '', 'Test %s number', 1.005);
