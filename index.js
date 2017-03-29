@@ -172,9 +172,22 @@ module.exports = class jfLogger extends jfObject {
         }
         if (name)
         {
-            const _length = this.length;
-            const _name   = (name + ' '.repeat(_length)).substr(0, _length);
-            msg           = chalk[colors[level] || 'grey'](`[${_name}]`) + ' ' + msg;
+            const _maxlen = this.length;
+            const _length = name.length;
+            let _name;
+            if (_length > _maxlen)
+            {
+                _name = '*' + name.substr(_length - _maxlen + 1);
+            }
+            else if (_length === _maxlen)
+            {
+                _name = name;
+            }
+            else
+            {
+                _name = (name + ' '.repeat(_maxlen)).substr(0, _maxlen);
+            }
+            msg = chalk[colors[level] || 'grey'](`[${_name}]`) + ' ' + msg;
         }
         this.addColorsToLogParams(params);
         this.logger[level](

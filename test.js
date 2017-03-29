@@ -24,7 +24,23 @@ function testLevel(msg)
         }
         else
         {
-            assertEqual(_name.trim(), logger.constructor.name.substr(0, length));
+            const _loggerName = logger.constructor.name;
+            const _llength    = _loggerName.length;
+            if (_llength > length)
+            {
+                assertEqual(
+                    _name.trim(),
+                    '*' + _loggerName.substr(_llength - length + 1)
+                );
+            }
+            else if (_llength === length)
+            {
+                assertEqual(_name, _loggerName);
+            }
+            else
+            {
+                assertEqual(_name, (_loggerName + ' '.repeat(length)).substr(0, length));
+            }
         }
         msg = _parts[2];
     }
@@ -74,4 +90,4 @@ for (let length = 0; length < 50; ++length)
 }
 // Verificamos el singleton
 assertEqual(jfLogger.i(), jfLogger.i());
-console.log('Total aserciones: %s', formatDecimal(assertions, { precision : 0 }));
+console.log('Total aserciones: %s', formatDecimal(assertions, {precision : 0}));
