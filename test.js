@@ -86,8 +86,8 @@ for (var length of [5, 10, 20])
 for (let length = 0; length < 50; ++length)
 {
     jfLogger.setDefaultNameLength(length);
-    assertEqual(new jfLogger().length, length);
+    assertEqual(new jfLogger()._loggerNameLength, length);
 }
 // Verificamos el singleton
 assertEqual(jfLogger.i(), jfLogger.i());
-console.log('Total aserciones: %s', formatDecimal(assertions, {precision : 0}));
+console.log('\n\nTotal aserciones: %s', formatDecimal(assertions, {precision : 0}));

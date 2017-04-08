@@ -74,26 +74,29 @@ module.exports = class jfLogger extends jfObject {
         super(config);
         log4js.configure(logConfig);
         /**
-         * Longitud máxima a imprimir del nombre.
-         *
-         * @property length
-         * @type     {Number}
-         */
-        this.length = config.length || defaultNameLength;
-        /**
          * Referencia al módulo log4js.
          *
          * @property log4js
          * @type     {log4js}
+         * @protected
          */
-        this.log4js = log4js;
+        this._log4js = log4js;
+        /**
+         * Instancia del logger a usar.
+         *
+         * @property logger
+         * @type     {Number}
+         * @protected
+         */
+        this._logger = log4js.getLogger('jf');
         /**
          * Longitud máxima a imprimir del nombre.
          *
-         * @property length
+         * @property loggerNameLength
          * @type     {Number}
+         * @protected
          */
-        this.logger = log4js.getLogger('jf');
+        this._loggerNameLength = config.loggerNameLength || defaultNameLength;
     }
 
     /**
@@ -190,7 +193,7 @@ module.exports = class jfLogger extends jfObject {
             msg = chalk[colors[level] || 'grey'](`[${_name}]`) + ' ' + msg;
         }
         this.addColorsToLogParams(params);
-        this.logger[level](
+        this._logger[level](
             translations.tr(
                 msg,
                 ...params
