@@ -175,7 +175,7 @@ module.exports = class jfLogger extends jfObject {
         }
         if (name)
         {
-            const _maxlen = this.length;
+            const _maxlen = this._loggerNameLength;
             const _length = name.length;
             let _name;
             if (_length > _maxlen)
