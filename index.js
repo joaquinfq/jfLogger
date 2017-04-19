@@ -1,6 +1,6 @@
 const chalk           = require('chalk');
 const formatDecimal   = require('format-decimal');
-const jfObject        = require('jf-object');
+const jfObject        = require('jf-object').default;
 const log4js          = require('log4js');
 const translations    = require('jf-translations').i();
 /**
