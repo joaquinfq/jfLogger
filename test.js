@@ -2,14 +2,25 @@ const assert        = require('assert');
 const formatDecimal = require('format-decimal');
 const jfLogger      = require('./index');
 let assertions      = 0;
+const levels        = {
+    debug : msg => checkMessage(msg, 'debug'),
+    error : msg => checkMessage(msg, 'error'),
+    fatal : msg => checkMessage(msg, 'fatal'),
+    info  : msg => checkMessage(msg, 'info'),
+    log   : msg => checkMessage(msg, 'log'),
+    trace : msg => checkMessage(msg, 'trace'),
+    warn  : msg => checkMessage(msg, 'warn'),
+};
+
 function assertEqual(actual, expected)
 {
     assert.strictEqual(actual, expected);
     ++assertions;
 }
+
 // No hay mucho que verificar ya que del resto se encarga el módulo log4js.
 // Solamente verificamos que se llame al método apropiado de log4js y se formatee correctamente el texto.
-function testLevel(msg)
+function checkMessage(msg, name)
 {
     // Eliminamos los colores.
     msg          = msg.replace(/\x1B\[\d{2}m/g, '');
@@ -43,51 +54,60 @@ function testLevel(msg)
             }
         }
         msg = _parts[2];
+        assertEqual(...(msg.split('=')));
     }
     else
     {
-        assertEqual(name, false);
+        assertEqual(msg, name);
     }
-    assertEqual(...(msg.split('=')));
 }
-const levels = {
-    debug : (msg) => testLevel(msg),
-    error : (msg) => testLevel(msg),
-    fatal : (msg) => testLevel(msg),
-    info  : (msg) => testLevel(msg),
-    log   : (msg) => testLevel(msg),
-    trace : (msg) => testLevel(msg),
-    warn  : (msg) => testLevel(msg),
-};
-const logger = new jfLogger();
-Object.assign(
-    logger,
+
+function testLevels()
+{
+    const logger   = new jfLogger();
+    logger._logger = levels;
+    Object.keys(levels).forEach(
+        name => logger.log(name, false, name)
+    );
+}
+
+function testMessage()
+{
+    const logger                = new jfLogger();
+    // Realizamos las pruebas sin tomar en cuenta los colores.
+    logger.addColorsToLogParams = p => p;
+    const names                 = Object.keys(levels);
+    for (const length of [5, 10, 20])
     {
-        // Realizamos las pruebas sin tomar en cuenta los colores.
-        addColorsToLogParams : () =>
+        logger._loggerNameLength = length;
+        for (const name of [false, '', ...names])
         {
-        },
-        logger               : levels
+            names.forEach(
+                (level, index) => logger.log(level, name, `Test %d {name}=Test ${index} ${name}`, index, { name })
+            );
+        }
     }
-);
-const names = Object.keys(levels);
-for (var length of [5, 10, 20])
+}
+
+function testNameLength()
 {
-    logger.length = length;
-    for (var name of [false, '', ...names])
+    // Verificamos que al asignar la longitud por defecto, todas las
+    // nuevas instancias usen ese valor.
+    for (let length = 0; length < 50; ++length)
     {
-        names.forEach(
-            (level, index) => logger.log(level, name, `Test %d {name}=Test ${index} ${name}`, index, {name})
-        );
+        jfLogger.setDefaultNameLength(length);
+        assertEqual(new jfLogger()._loggerNameLength, length);
     }
 }
-// Verificamos que al asignar la longitud por defecto, todas las
-// nuevas instancias usen ese valor.
-for (let length = 0; length < 50; ++length)
+
+function testSingleton()
 {
-    jfLogger.setDefaultNameLength(length);
-    assertEqual(new jfLogger()._loggerNameLength, length);
+    // Verificamos el singleton
+    assertEqual(jfLogger.i(), jfLogger.i());
 }
-// Verificamos el singleton
-assertEqual(jfLogger.i(), jfLogger.i());
-console.log('\n\nTotal aserciones: %s', formatDecimal(assertions, {precision : 0}));
+
+testLevels();
+testMessage();
+testNameLength();
+testSingleton();
+console.log('\n\nTotal aserciones: %s', formatDecimal(assertions, { precision : 0 }));

@@ -1,8 +1,31 @@
-const chalk           = require('chalk');
-const formatDecimal   = require('format-decimal');
-const jfObject        = require('jf-object').default;
-const log4js          = require('log4js');
-const translations    = require('jf-translations').i();
+const chalk         = require('chalk');
+const formatDecimal = require('format-decimal');
+const jfObject      = require('jf-object').default;
+const log4js        = require('log4js');
+const translations  = require('jf-translations').i();
+/**
+ * Configuración por defecto a aplicar.
+ * Se puede cambiar haciendo `require('log4js').configure({...})`.
+ */
+log4js.configure(
+    {
+        appenders  : {
+            console : {
+                type   : 'console',
+                layout : {
+                    type    : 'pattern',
+                    pattern : '%[%r%] %m'
+                }
+            }
+        },
+        categories : {
+            default : {
+                appenders : ['console'],
+                level     : 'ALL'
+            }
+        }
+    }
+);
 /**
  * Configuración por defecto a aplicar.
  * Se puede cambiar haciendo jfLogger.config = {...}
@@ -25,26 +48,6 @@ let colors            = {
  */
 let defaultNameLength = 15;
 /**
- * Configuración por defecto a aplicar.
- * Se puede cambiar haciendo jfLogger.config = {...}
- *
- * @type {Object}
- */
-let logConfig         = {
-    appenders : [
-        {
-            type   : 'console',
-            layout : {
-                type    : 'pattern',
-                pattern : '%[%r%] %m'
-            }
-        }
-    ],
-    levels    : {
-        jf : 'ALL'
-    }
-};
-/**
  * Clase para manejar registro de trazas.
  * Al extender de `jfObject` se pueden aprovechar todas sus funcionalidades
  * con el añadido de poder manejar un registro de información.
@@ -61,26 +64,20 @@ let logConfig         = {
  * @see       https://www.npmjs.com/package/jf-translations
  * @see       https://www.npmjs.com/package/log4js
  */
-module.exports = class jfLogger extends jfObject {
+module.exports = class jfLogger extends jfObject
+{
     /**
      * Construye una instancia de `jfLogger`.
      *
-     * @param {Object} config Configuración a aplicar a la instancia.
+     * @param {Object}  config                  Configuración a aplicar a la instancia.
+     * @param {Number}  config.loggerNameLength Longitud del nombre a imprimir en las trazas.
+     * @param {Boolean} config.useConsole       Si es `true` se usa la consola en vez de `log4js`.
      *
      * @constructor
      */
     constructor(config = {})
     {
         super(config);
-        log4js.configure(logConfig);
-        /**
-         * Referencia al módulo log4js.
-         *
-         * @property log4js
-         * @type     {log4js}
-         * @protected
-         */
-        this._log4js = log4js;
         /**
          * Instancia del logger a usar.
          *
@@ -88,7 +85,9 @@ module.exports = class jfLogger extends jfObject {
          * @type     {Number}
          * @protected
          */
-        this._logger = log4js.getLogger('jf');
+        this._logger = config.useConsole
+            ? console
+            : log4js.getLogger('jf');
         /**
          * Longitud máxima a imprimir del nombre.
          *
@@ -153,6 +152,22 @@ module.exports = class jfLogger extends jfObject {
     }
 
     /**
+     * Agrega la funcionalidad del logger al objeto con el método especificado.
+     *
+     * @method attach
+     *
+     * @param {Object} obj    Objeto que recibirá el logger.
+     * @param {String} method Nombre del método a agregar (`log` por defecto).
+     */
+    attach(obj, method = 'log')
+    {
+        if (obj)
+        {
+            obj[method] = (...args) => this.log(...args);
+        }
+    }
+
+    /**
      * Agrega una línea al registro.
      * Cualquier placeholders que tenga el mensaje se lo resuelve el
      * método `tr` del módulo de traducciones.
@@ -169,47 +184,41 @@ module.exports = class jfLogger extends jfObject {
      */
     log(level, name, msg, ...params)
     {
-        if (!name && name !== false)
-        {
-            name = this.constructor.name;
-        }
-        if (name)
+        const _logger = this._logger;
+        if (typeof _logger[level] === 'function')
         {
             const _maxlen = this._loggerNameLength;
-            const _length = name.length;
-            let _name;
-            if (_length > _maxlen)
+            if (_maxlen === false)
             {
-                _name = '*' + name.substr(_length - _maxlen + 1);
+                name = false;
             }
-            else if (_length === _maxlen)
+            else if (!name && name !== false)
             {
-                _name = name;
+                name = this.constructor.name;
             }
-            else
+            if (name)
             {
-                _name = (name + ' '.repeat(_maxlen)).substr(0, _maxlen);
+                const _length = name.length;
+                let _name;
+                if (_length > _maxlen)
+                {
+                    _name = '*' + name.substr(_length - _maxlen + 1);
+                }
+                else if (_length === _maxlen)
+                {
+                    _name = name;
+                }
+                else
+                {
+                    _name = (name + ' '.repeat(_maxlen)).substr(0, _maxlen);
+                }
+                msg = chalk[colors[level] || 'grey'](`[${_name}]`) + ' ' + msg;
             }
-            msg = chalk[colors[level] || 'grey'](`[${_name}]`) + ' ' + msg;
+            this.addColorsToLogParams(params);
+            _logger[level](
+                translations.tr(msg, ...params)
+            );
         }
-        this.addColorsToLogParams(params);
-        this._logger[level](
-            translations.tr(
-                msg,
-                ...params
-            )
-        );
-    }
-
-    /**
-     * Asigna la configuración de `log4js`.
-     * Debe asignarse antes de crear la instancia `jfLogger`.
-     *
-     * @param {Object} config Configuración a asignar.
-     */
-    static set config(config)
-    {
-        Object.assign(logConfig, config);
     }
 
     /**
