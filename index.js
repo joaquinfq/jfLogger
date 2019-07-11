@@ -1,8 +1,8 @@
 const chalk         = require('chalk');
 const formatDecimal = require('format-decimal');
-const jfObject      = require('jf-object').default;
+const jfObject      = require('@jf/object');
 const log4js        = require('log4js');
-const translations  = require('jf-translations').i();
+const translations  = require('@jf/translations').i();
 /**
  * Configuración por defecto a aplicar.
  * Se puede cambiar haciendo `require('log4js').configure({...})`.

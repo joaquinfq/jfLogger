@@ -1,6 +1,6 @@
 {
-    "version": "1.0.0",
-    "name": "jf-logger",
+    "version": "2.0.0",
+    "name": "@jf/logger",
     "author": "Joaquín Fernández",
     "description": "Class for manipulating logs and traces. Can be used as base class for reporting class or node scripts.",
     "keywords": [
@@ -17,11 +17,11 @@
         "url": "https://github.com/joaquinfq/jfLogger"
     },
     "dependencies": {
-        "chalk": "^2.3.2",
+        "@jf/object": "^3.0.1",
+        "@jf/translations": "^2.0.0",
+        "chalk": "^2.4.2",
         "format-decimal": "^0.1.0",
-        "jf-object": "^1.0.1",
-        "jf-translations": "^0.1.7",
-        "log4js": "^2.5.3"
+        "log4js": "^4.5.0"
     },
     "scripts": {
         "test": "node test"
